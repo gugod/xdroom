@@ -1,9 +1,9 @@
-
-html,body{
+html, body {
     margin: 0;
     padding: 0;
     background-color: #fff;
 }
+
 #connection-status { 
     position: fixed;
     bottom: 10px;
@@ -15,10 +15,12 @@ html,body{
     width: 75%;
     margin: 0 auto;
 }
+
 .message {
     padding: 10px;
     margin: 0;
 }
+
 .message:nth-child(even) {
     background: #eee;
 }
