@@ -1,5 +1,6 @@
 html, body {
     font-size: 18pt;
+    line-height: 18pt;
     font-family: Helvectica, sans-serif;
     margin: 0;
     padding: 0;
@@ -23,7 +24,9 @@ html, body {
 }
 
 #message_body {
-    font-size: 18pt;
+    line-height: 18pt;
+    font-size: 14pt;
+    height: 18pt;
     padding: 0;
     margin: 0;
     width: 70%;
