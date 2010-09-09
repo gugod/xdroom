@@ -37,3 +37,8 @@ html, body {
 .message:nth-child(even) {
     background: #eee;
 }
+
+.nickname-hint {
+    font-size: x-small;
+    color:#555;
+}

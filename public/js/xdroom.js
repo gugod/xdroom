@@ -64,6 +64,7 @@
         $("#nickname").bind("click", function() {
             $(this).text(prompt("Change nickname", $(this).text()));
             $("input[name=message_body]").focus();
+            $("p.nickname-hint").remove();
             return false;
         });
     });
