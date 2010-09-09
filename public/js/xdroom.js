@@ -36,10 +36,10 @@
         
 
         $("#message_form").bind("submit", function(e) {
-            var b = $("input[name=message_body]").val(), n = $("input[name=nickname]").val();
+            var b = $("input[name=message_body]").val(), n = $("#nickname").text();
 
             if (!b.match(/^\s*$/)) {
-                hpipe.send({'type': 'says', 'body':  b });
+                hpipe.send({'type': 'says', 'body':  b, 'nickname': n });
 
                 $(this).find("input[name=message_body]").val("");
             }
@@ -53,6 +53,11 @@
 
     $(function() {
         $("input[name=message_body]").focus();
+        $("#nickname").bind("click", function() {
+            $(this).text(prompt("Change nickname", $(this).text()));
+            $("input[name=message_body]").focus();
+            return false;
+        });
         hippie_woopie();
     });
 }(jQuery));
