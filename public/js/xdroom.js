@@ -1,6 +1,6 @@
 (function($){
     function append_message(x) {
-        $('#content').prepend('<p class="message">' + x + '</p>');
+        $('<p class="message"></p>').text(x).prependTo('#content');
     }
 
     function _normalize_message_data(x) {
