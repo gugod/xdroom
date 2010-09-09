@@ -1,4 +1,6 @@
 html, body {
+    font-size: 18pt;
+    font-family: Helvectica, sans-serif;
     margin: 0;
     padding: 0;
     background-color: #fff;
@@ -12,8 +14,19 @@ html, body {
 }
 
 #message_form, #content {
-    width: 75%;
     margin: 0 auto;
+    padding: 0
+}
+
+#message_form {
+    padding: 10px;
+}
+
+#message_body {
+    font-size: 18pt;
+    padding: 0;
+    margin: 0;
+    width: 70%;
 }
 
 .message {
