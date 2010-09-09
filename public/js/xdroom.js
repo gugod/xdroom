@@ -1,6 +1,10 @@
 (function($){
     function append_message(x) {
         $('<p class="message"></p>').text(x).prependTo('#content');
+
+        if ($(".message").size() > 100) {
+            $(".message:last-child").remove();
+        }
     }
 
     function _normalize_message_data(x) {
