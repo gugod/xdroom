@@ -1,4 +1,13 @@
 (function($){
+    function append_message(x) {
+        $('#content').prepend('<p class="message">' + x + '</p>');
+    }
+
+    function _normalize_message_data(x) {
+        if (!x.nickname) x.nickname = "Someone";
+        return x;
+    }
+
     function hippie_woopie() {
         var timer_update;
 
@@ -26,12 +35,9 @@
                 do_timer_update();
             })
             .bind("message.says", function (e, data) {
-                try {
-                    var x = (data.nickname || "Someone") + (data.verb || ": " ) + data.body;
-                    $('#content').prepend('<p class="message">' + x + '</p>');
-                } catch(e) {
-                    if (console) console.log(e)
-                };
+                var x = _normalize_message_data(data);
+
+                append_message(x.nickname + ": " + x.body);
             });
         
 
@@ -52,12 +58,13 @@
     }
 
     $(function() {
+        hippie_woopie();
+
         $("input[name=message_body]").focus();
         $("#nickname").bind("click", function() {
             $(this).text(prompt("Change nickname", $(this).text()));
             $("input[name=message_body]").focus();
             return false;
         });
-        hippie_woopie();
     });
 }(jQuery));
