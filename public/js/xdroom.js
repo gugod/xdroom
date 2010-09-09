@@ -28,7 +28,7 @@
             .bind("message.says", function (e, data) {
                 try {
                     var x = (data.nickname || "Someone") + (data.verb || ": " ) + data.body;
-                    $('#content').prepend("<p>" + x + "</p>");
+                    $('#content').prepend('<p class="message">' + x + '</p>');
                 } catch(e) {
                     if (console) console.log(e)
                 };

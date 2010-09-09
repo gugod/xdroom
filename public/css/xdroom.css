@@ -8,9 +8,17 @@ html,body{
     position: fixed;
     bottom: 10px;
     right: 10px;
+    color: #aaa;
 }
 
 #message_form, #content {
     width: 75%;
     margin: 0 auto;
+}
+.message {
+    padding: 10px;
+    margin: 0;
+}
+.message:nth-child(even) {
+    background: #eee;
 }
