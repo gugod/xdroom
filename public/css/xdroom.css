@@ -1,0 +1,16 @@
+
+html,body{
+    margin: 0;
+    padding: 0;
+    background-color: #fff;
+}
+#connection-status { 
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+}
+
+#message_form, #content {
+    width: 75%;
+    margin: 0 auto;
+}
