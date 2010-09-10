@@ -1,3 +1,5 @@
+if (typeof(JSON) == 'undefined') $.getScript("/js/json2.js");
+
 (function($){
     function repeat(str, i) {
         if (isNaN(i) || i <= 0) return "";
@@ -10,9 +12,9 @@
         return String(zeros + x).slice(-1 * n);
     }
 
-    function append_message(x) {
-        var $m, sha1;
 
+    function build_message(x) {
+        var $m;
         x = _normalize_message_data(x);
 
         $m = $('<p class="message"></p>');
@@ -20,17 +22,28 @@
         $m.prepend('<span class="nickname">' + x.nickname + '</span>');
         $m.prepend('<time>' + x.time + '</time>');
 
-        sha1 = CybozuLabs.SHA1.calc($m.html());
+        return $m;
+    }
+
+    function build_action_message(x) {
+        var $m;
+        x = _normalize_message_data(x);
+
+        $m = $('<p class="message action"></p>');
+        $m.text(x.verb + (x.target ? (' '+x.target) : ''));
+        $m.prepend('<span class="nickname">' + x.nickname + '</span>');
+        $m.prepend('<time>' + x.time + '</time>');
+
+        return $m;
+    }
+
+    function append_message($m) {
+        var sha1 = CybozuLabs.SHA1.calc($m.html());
         if ($(".message[sha1=" + sha1 + "]").size() > 0) {
             return;
         }
         $m.attr("sha1", sha1);
-
         $m.prependTo('#content');
-
-        if ($(".message").size() > 100) {
-            $(".message:last-child").remove();
-        }
     }
 
     function current_time(t) {
@@ -66,11 +79,14 @@
     function hippie_woopie() {
         var timer_update;
 
-        hpipe = new Hippie.Pipe();
+        var hpipe = window.hpipe = new Hippie.Pipe();
         hpipe.args = "arena";
 
         var status = $('#connection-status');
         $(hpipe)
+            .bind("ready", function () {
+                $(document.body).trigger("xdroom-connected");
+            })
             .bind("connected", function () {
                 status.addClass("connected").text("Connected");
                 if(timer_update) clearTimeout(timer_update);
@@ -90,7 +106,12 @@
                 do_timer_update();
             })
             .bind("message.says", function (e, data) {
-                append_message(data);
+                var m = build_message(data);
+                append_message(m);
+            })
+            .bind("message.action", function (e, data) {
+                var m = build_action_message(data);
+                append_message(m);
             });
         
 
@@ -113,8 +134,6 @@
     $(function() {
         var n;
 
-        hippie_woopie();
-
         $("input[name=message_body]").focus();
 
         if (n = $.cookie("xdroom_nickname")) {
@@ -123,12 +142,28 @@
         }
 
         $("#nickname").bind("click", function() {
+            var old_nickname = nickname();
             nickname(prompt("Change nickname", nickname()));
-
             $("input[name=message_body]").focus();
             $("p.nickname-hint").remove();
             $.cookie("xdroom_nickname", nickname(), { path: '/', expires: 365 });
+            $(document.body).trigger("xdroom-nickname-changed", [ old_nickname ]);
             return false;
         });
+
+        $(document.body)
+            .bind("xdroom-connected", function() {
+                hpipe.send({'type':'action', 'nickname': nickname(), 'verb':'joined'});
+            })
+            .bind("xdroom-nickname-changed", function(e, old_nickname) {
+                hpipe.send({'type':'action', 'nickname': old_nickname, 'verb':'renamed to', 'target': nickname()});
+            });
+
+        $(window).bind("unload", function() {
+            hpipe.send({'type':'action', 'nickname': nickname(), 'verb':'leaved'});
+        });
+
+        hippie_woopie();
+
     });
 }(jQuery));

@@ -49,6 +49,15 @@ html, body {
 .nickname:after {
     content: ": ";
 }
+.action .nickname:after {
+    content: " ";
+}
+.action {
+    background: #ffe;
+}
+.action:nth-child(even) {
+    background: #ffc;
+}
 
 time {
     color:#ccc;
