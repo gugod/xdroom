@@ -116,13 +116,22 @@ if (typeof(JSON) == 'undefined') $.getScript("/js/json2.js");
         
 
         $("#message_form").bind("submit", function(e) {
-            var b = $("input[name=message_body]").val();
+            var matched, b = $("input[name=message_body]").val();
             e.preventDefault();
             if (b.match(/^\s*$/)) return false;
 
-            hpipe.send({'type': 'says', 'body':  b, 'nickname': nickname() });
-            $(this).find("input[name=message_body]").val("");
+            if (matched = b.match(/^\/nick\s+([\s\S]+)$/)) {
+                var old_nickname = nickname();
+                nickname(matched[1]);
+                $("p.nickname-hint").remove();
+                $.cookie("xdroom_nickname", nickname(), { path: '/', expires: 365 });
+                $(document.body).trigger("xdroom-nickname-changed", [ old_nickname ]);
+            }
+            else {
+                hpipe.send({'type': 'says', 'body':  b, 'nickname': nickname() });
+            }
 
+            $(this).find("input[name=message_body]").val("");
             return false;
         });
 
