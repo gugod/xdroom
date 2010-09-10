@@ -19,7 +19,7 @@
 
         $m.prependTo('#content');
         $m.text(x.body);
-        $m.prepend(x.nickname + ' :');
+        $m.prepend('<span class="nickname">' + x.nickname + '</span>');
         $m.prepend('<time>' + x.time + '</time>');
 
         if ($(".message").size() > 100) {

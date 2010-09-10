@@ -46,6 +46,10 @@ html, body {
     color:#555;
 }
 
+.nickname:after {
+    content: ": ";
+}
+
 time {
     color:#ccc;
     margin-right: 0.5em;
