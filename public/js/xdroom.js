@@ -1,7 +1,7 @@
 if (typeof(JSON) == 'undefined') $.getScript("/js/json2.js");
 
 (function($){
-    var nc;
+    var nc, IDENTIFIER = CybozuLabs.SHA1.calc(Math.random().toString() + new Date().getTime());
 
     function repeat(str, i) {
         if (isNaN(i) || i <= 0) return "";
@@ -136,7 +136,7 @@ if (typeof(JSON) == 'undefined') $.getScript("/js/json2.js");
                 $(document.body).trigger("xdroom-nickname-changed", [ old_nickname ]);
             }
             else {
-                hpipe.send({'type': 'says', 'body':  b, 'nickname': nickname() });
+                hpipe.send({'__client': IDENTIFIER, 'type': 'says', 'body':  b, 'nickname': nickname() });
             }
 
             $(this).find("input[name=message_body]").val("");
@@ -144,31 +144,6 @@ if (typeof(JSON) == 'undefined') $.getScript("/js/json2.js");
         });
 
         hpipe.init();
-    }
-
-    function xdnotify(message_data) {
-        var x, permission;
-        try {
-            permission = window.webkitNotifications.checkPermission();
-
-            if (permission == 0) {
-                x = window.webkitNotifications.createNotification(
-                    null,
-                    message_data.nickname + " says",
-                    message_data.body
-                );
-                x.show();
-            }
-            else {
-               console.log("I AH HERE: ", permission);
-
-                window.webkitNotifications.requestPermission(function() {
-                    xdnotify(message_data);
-                });
-            }
-        } catch(e) {
-            // just ignore
-        }
     }
 
     $(function() {
@@ -189,6 +164,28 @@ if (typeof(JSON) == 'undefined') $.getScript("/js/json2.js");
             return false;
         });
 
+
+        if (window.webkitNotifications) {
+            $("button#enable-notification").bind("click", function() {
+                var button = this;
+                var permission = window.webkitNotifications.checkPermission();
+                if (permission != 0) {
+                    window.webkitNotifications.requestPermission(function() {
+                        $(button).text("Thank you!").fadeOut('slow');
+                        $("#message_body").focus();
+                    });
+                }
+                else {
+                    $(button).text("Already Done!").fadeOut('slow');
+                    $("#message_body").focus();
+                }
+            });
+        }
+        else {
+            $("button#enable-notification").remove();
+        }
+
+        var document_load_time = new Date();
         $(document.body)
             .bind("xdroom-connected", function() {
                 hpipe.send({'type':'action', 'nickname': nickname(), 'verb':'joined'});
@@ -196,8 +193,30 @@ if (typeof(JSON) == 'undefined') $.getScript("/js/json2.js");
             .bind("xdroom-nickname-changed", function(e, old_nickname) {
                 hpipe.send({'type':'action', 'nickname': old_nickname, 'verb':'renamed to', 'target': nickname()});
             })
-            .bind("xdroom-message-says", function(e, data, $m) {
-                xdnotify(data);
+            .bind("xdroom-message-says", function(e, message_data, $m) {
+                var x, now = new Date();
+
+                if (message_data.__client == IDENTIFIER) return;
+                if (!window.webkitNotifications) return;
+                if (now - document_load_time < 3000) return;
+
+                try {
+                    if (0 == window.webkitNotifications.checkPermission()) {
+                        x = window.webkitNotifications.createNotification(
+                            "/images/opmsg48x48.jpg",
+                            message_data.nickname + " says",
+                            message_data.body
+                        );
+                        x.ondisplay = function() {
+                            setTimeout(function() {
+                                x.cancel();
+                            }, 3000);
+                        };
+                        x.show();
+                    }
+                } catch(e) {
+                    // just ignore
+                }
             });
 
         $(window).bind("unload", function() {
