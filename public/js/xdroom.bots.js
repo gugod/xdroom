@@ -14,9 +14,12 @@ moretext_interval = setInterval(function() {
     $.getJSON(
         "http://more.handlino.com/sentences.json?callback=?",
         function(d) {
+            var oldnick = $("#nickname").text();
             $("#nickname").text("Moretext");
             $("#message_body").val(d.sentences[0]);
             $("#message_form").submit();
+            $("#nickname").text(oldnick);
         }
     )
-}, 120 * 1000);
+}, 300000);
+
