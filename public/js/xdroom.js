@@ -34,7 +34,6 @@
         if (!t.getHours) {
             t2 = new Date();
             t2.setTime(t);
-            console.log(t, t2);
             t = t2;
         }
         return pad(t.getHours(), 2, 0) + ':' + pad(t.getMinutes(), 2, 0);
@@ -46,8 +45,6 @@
             x.time = current_time();
         }
         else if (x.time.toString().match(/^\d+$/)) {
-            console.log("h: " + x.time);
-
             x.time = current_time(parseInt(x.time) * 1000);
         }
         return x;
