@@ -2,10 +2,12 @@
 
 // time
 timebot_interval = setInterval(function() {
+    var oldnick = $("#nickname").text();
     $("#nickname").text("不整點報時");
     $("#message_body").val("-----------" + new Date() + "-----------");
     $("#message_form").submit();
-}, Math.radnom(1800 * 1000) + 600000);
+    $("#nickname").text(oldnick);
+}, Math.random() * 1000000 + 60000);
 
 // moretext
 moretext_interval = setInterval(function() {
