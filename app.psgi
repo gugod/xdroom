@@ -1,10 +1,21 @@
 # -*- cperl -*-
-use common::sense;
+use Moose;
 use Plack::Builder;
 use Plack::Request;
+
 use AnyMQ;
+use AnyMQ::Topic;
 
 my $bus = AnyMQ->new;
+my $topic = AnyMQ::Topic->with_traits('WithBacklog')->new(backlog_length => 90, bus => $bus);
+
+$topic->publish({
+    nickname => 'xdroot',
+    type => 'says',
+    body => "Welcome to xdroom."
+});
+
+$bus->topics->{"arena"} = $topic;
 
 builder {
     mount "/_hippie/" => builder {
