@@ -12,7 +12,8 @@ my $topic = AnyMQ::Topic->with_traits('WithBacklog')->new(backlog_length => 90, 
 $topic->publish({
     nickname => 'xdroot',
     type => 'says',
-    body => "Welcome to xdroom."
+    body => "Welcome to xdroom.",
+    time => time
 });
 
 $bus->topics->{"arena"} = $topic;
