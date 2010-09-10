@@ -1,6 +1,8 @@
 if (typeof(JSON) == 'undefined') $.getScript("/js/json2.js");
 
 (function($){
+    var nc;
+
     function repeat(str, i) {
         if (isNaN(i) || i <= 0) return "";
         return str + repeat(str, i-1);
@@ -70,10 +72,15 @@ if (typeof(JSON) == 'undefined') $.getScript("/js/json2.js");
     }
 
     function nickname(new_nickname) {
+        var n;
+
         if (new_nickname) {
-            $("#nickname").text(new_nickname);
+            n = $("#nickname").val();
+            $("#nickname").attr("old-value", n).val(new_nickname);
+            return n;
         }
-        return $("#nickname").text();
+
+        return $("#nickname").val();
     }
 
     function hippie_woopie() {
@@ -108,6 +115,8 @@ if (typeof(JSON) == 'undefined') $.getScript("/js/json2.js");
             .bind("message.says", function (e, data) {
                 var m = build_message(data);
                 append_message(m);
+
+                $(document.body).trigger("xdroom-message-says", [data, m]);
             })
             .bind("message.action", function (e, data) {
                 var m = build_action_message(data);
@@ -123,7 +132,6 @@ if (typeof(JSON) == 'undefined') $.getScript("/js/json2.js");
             if (matched = b.match(/^\/nick\s+([\s\S]+)$/)) {
                 var old_nickname = nickname();
                 nickname(matched[1]);
-                $("p.nickname-hint").remove();
                 $.cookie("xdroom_nickname", nickname(), { path: '/', expires: 365 });
                 $(document.body).trigger("xdroom-nickname-changed", [ old_nickname ]);
             }
@@ -138,6 +146,31 @@ if (typeof(JSON) == 'undefined') $.getScript("/js/json2.js");
         hpipe.init();
     }
 
+    function xdnotify(message_data) {
+        var x, permission;
+        try {
+            permission = window.webkitNotifications.checkPermission();
+
+            if (permission == 0) {
+                x = window.webkitNotifications.createNotification(
+                    null,
+                    message_data.nickname + " says",
+                    message_data.body
+                );
+                x.show();
+            }
+            else {
+               console.log("I AH HERE: ", permission);
+
+                window.webkitNotifications.requestPermission(function() {
+                    xdnotify(message_data);
+                });
+            }
+        } catch(e) {
+            // just ignore
+        }
+    }
+
     $(function() {
         var n;
 
@@ -145,28 +178,26 @@ if (typeof(JSON) == 'undefined') $.getScript("/js/json2.js");
 
         if (n = $.cookie("xdroom_nickname")) {
             nickname(n);
-            $("p.nickname-hint").remove();
+            $("#nickname").attr("old-value", n);
         }
 
-        $("#nickname").bind("click", function() {
-            var old_nickname = nickname();
-            nickname(prompt("Change nickname", nickname()));
+        $("#nickname").bind("change", function(e) {
+            var old_nickname = $(this).attr("old-value");
             $("input[name=message_body]").focus();
-            $("p.nickname-hint").remove();
             $.cookie("xdroom_nickname", nickname(), { path: '/', expires: 365 });
             $(document.body).trigger("xdroom-nickname-changed", [ old_nickname ]);
             return false;
         });
 
         $(document.body)
-            .bind("click", function() {
-                $("#message_body").focus();
-            })
             .bind("xdroom-connected", function() {
                 hpipe.send({'type':'action', 'nickname': nickname(), 'verb':'joined'});
             })
             .bind("xdroom-nickname-changed", function(e, old_nickname) {
                 hpipe.send({'type':'action', 'nickname': old_nickname, 'verb':'renamed to', 'target': nickname()});
+            })
+            .bind("xdroom-message-says", function(e, data, $m) {
+                xdnotify(data);
             });
 
         $(window).bind("unload", function() {

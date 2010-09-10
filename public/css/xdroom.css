@@ -23,13 +23,16 @@ html, body {
     padding: 10px;
 }
 
-#message_body {
+input {
     line-height: 18pt;
     font-size: 14pt;
     height: 18pt;
-    padding: 0;
+    padding: 5px;
     margin: 0;
-    width: 70%;
+}
+
+#message_body {
+    width: 40em;
 }
 
 .message {
@@ -41,20 +44,18 @@ html, body {
     background: #eee;
 }
 
-.nickname-hint {
-    font-size: small;
-    color:#555;
-}
-
 .nickname:after {
     content: ": ";
 }
+
 .action .nickname:after {
     content: " ";
 }
+
 .action {
     background: #ffe;
 }
+
 .action:nth-child(even) {
     background: #ffc;
 }

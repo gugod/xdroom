@@ -20,9 +20,10 @@
         <div id="connection-status"></div>
 
         <form method="post" id="message_form" action="#">
-            <a id="nickname" href="javascript;">Someone</a>
+            <input id="nickname" type="text" name="" value="Someone">
             <input id="message_body" type="text" name="message_body" value="">
-            <p class="nickname-hint">點 "Somenoe" 可設定暱稱 / Click "Someone" to set nickname</p>
+            <button type="submit">Send</button>
+            <button id="btoggle-notification">Enable Notification</button>
         </form>
 
         <div id="content"></div>
