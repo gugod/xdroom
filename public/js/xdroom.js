@@ -117,14 +117,12 @@ if (typeof(JSON) == 'undefined') $.getScript("/js/json2.js");
 
         $("#message_form").bind("submit", function(e) {
             var b = $("input[name=message_body]").val();
-
-            if (!b.match(/^\s*$/)) {
-                hpipe.send({'type': 'says', 'body':  b, 'nickname': nickname() });
-
-                $(this).find("input[name=message_body]").val("");
-            }
-
             e.preventDefault();
+            if (b.match(/^\s*$/)) return false;
+
+            hpipe.send({'type': 'says', 'body':  b, 'nickname': nickname() });
+            $(this).find("input[name=message_body]").val("");
+
             return false;
         });
 
@@ -152,6 +150,9 @@ if (typeof(JSON) == 'undefined') $.getScript("/js/json2.js");
         });
 
         $(document.body)
+            .bind("click", function() {
+                $("#message_body").focus();
+            })
             .bind("xdroom-connected", function() {
                 hpipe.send({'type':'action', 'nickname': nickname(), 'verb':'joined'});
             })
