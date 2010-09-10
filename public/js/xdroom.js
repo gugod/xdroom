@@ -188,7 +188,10 @@ if (typeof(JSON) == 'undefined') $.getScript("/js/json2.js");
         var document_load_time = new Date();
         $(document.body)
             .bind("xdroom-connected", function() {
-                hpipe.send({'type':'action', 'nickname': nickname(), 'verb':'joined'});
+                var now = new Date();
+                if (now - document_load_time < 10000) {
+                    hpipe.send({'type':'action', 'nickname': nickname(), 'verb':'joined'});
+                }
             })
             .bind("xdroom-nickname-changed", function(e, old_nickname) {
                 hpipe.send({'type':'action', 'nickname': old_nickname, 'verb':'renamed to', 'target': nickname()});
