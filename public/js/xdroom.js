@@ -112,6 +112,7 @@
 
         if (nickname = $.cookie("xdroom_nickname")) {
             $("#nickname").text(nickname);
+            $("p.nickname-hint").remove();
         }
 
         $("#nickname").bind("click", function() {
