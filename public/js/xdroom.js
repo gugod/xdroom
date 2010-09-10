@@ -104,13 +104,21 @@
     }
 
     $(function() {
+        var nickname;
+
         hippie_woopie();
 
         $("input[name=message_body]").focus();
+
+        if (nickname = $.cookie("xdroom_nickname")) {
+            $("#nickname").text(nickname);
+        }
+
         $("#nickname").bind("click", function() {
             $(this).text(prompt("Change nickname", $(this).text()));
             $("input[name=message_body]").focus();
             $("p.nickname-hint").remove();
+            $.cookie("xdroom_nickname", $(this).text(), { path: '/', expires: 365 });
             return false;
         });
     });
