@@ -1,14 +1,55 @@
 (function($){
+    function repeat(str, i) {
+        if (isNaN(i) || i <= 0) return "";
+        return str + repeat(str, i-1);
+    }
+
+    // pad up to n Ys before X.
+    function pad(x, n, y) {
+        var zeros = repeat(y, n);
+        return String(zeros + x).slice(-1 * n);
+    }
+
     function append_message(x) {
-        $('<p class="message"></p>').text(x).prependTo('#content');
+        var $m;
+
+        x = _normalize_message_data(x);
+
+        $m = $('<p class="message"></p>');
+
+        $m.prependTo('#content');
+        $m.text(x.body);
+        $m.prepend(x.nickname + ' :');
+        $m.prepend('<time>' + x.time + '</time>');
 
         if ($(".message").size() > 100) {
             $(".message:last-child").remove();
         }
     }
 
+    function current_time(t) {
+        var t2;
+
+        if (!t) t = new Date();
+        if (!t.getHours) {
+            t2 = new Date();
+            t2.setTime(t);
+            console.log(t, t2);
+            t = t2;
+        }
+        return pad(t.getHours(), 2, 0) + ':' + pad(t.getMinutes(), 2, 0);
+    }
+
     function _normalize_message_data(x) {
         if (!x.nickname) x.nickname = "Someone";
+        if (!x.time) {
+            x.time = current_time();
+        }
+        else if (x.time.toString().match(/^\d+$/)) {
+            console.log("h: " + x.time);
+
+            x.time = current_time(parseInt(x.time) * 1000);
+        }
         return x;
     }
 
@@ -39,9 +80,7 @@
                 do_timer_update();
             })
             .bind("message.says", function (e, data) {
-                var x = _normalize_message_data(data);
-
-                append_message(x.nickname + ": " + x.body);
+                append_message(data);;
             });
         
 

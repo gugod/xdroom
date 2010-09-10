@@ -45,3 +45,8 @@ html, body {
     font-size: x-small;
     color:#555;
 }
+
+time {
+    color:#ccc;
+    margin-right: 0.5em;
+}
