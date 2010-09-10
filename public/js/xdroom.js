@@ -11,16 +11,22 @@
     }
 
     function append_message(x) {
-        var $m;
+        var $m, sha1;
 
         x = _normalize_message_data(x);
 
         $m = $('<p class="message"></p>');
-
-        $m.prependTo('#content');
         $m.text(x.body);
         $m.prepend('<span class="nickname">' + x.nickname + '</span>');
         $m.prepend('<time>' + x.time + '</time>');
+
+        sha1 = CybozuLabs.SHA1.calc($m.html());
+        if ($(".message[sha1=" + sha1 + "]").size() > 0) {
+            return;
+        }
+        $m.attr("sha1", sha1);
+
+        $m.prependTo('#content');
 
         if ($(".message").size() > 100) {
             $(".message:last-child").remove();
