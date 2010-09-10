@@ -56,6 +56,13 @@
         return x;
     }
 
+    function nickname(new_nickname) {
+        if (new_nickname) {
+            $("#nickname").text(new_nickname);
+        }
+        return $("#nickname").text();
+    }
+
     function hippie_woopie() {
         var timer_update;
 
@@ -83,15 +90,15 @@
                 do_timer_update();
             })
             .bind("message.says", function (e, data) {
-                append_message(data);;
+                append_message(data);
             });
         
 
         $("#message_form").bind("submit", function(e) {
-            var b = $("input[name=message_body]").val(), n = $("#nickname").text();
+            var b = $("input[name=message_body]").val();
 
             if (!b.match(/^\s*$/)) {
-                hpipe.send({'type': 'says', 'body':  b, 'nickname': n });
+                hpipe.send({'type': 'says', 'body':  b, 'nickname': nickname() });
 
                 $(this).find("input[name=message_body]").val("");
             }
@@ -104,22 +111,23 @@
     }
 
     $(function() {
-        var nickname;
+        var n;
 
         hippie_woopie();
 
         $("input[name=message_body]").focus();
 
-        if (nickname = $.cookie("xdroom_nickname")) {
-            $("#nickname").text(nickname);
+        if (n = $.cookie("xdroom_nickname")) {
+            nickname(n);
             $("p.nickname-hint").remove();
         }
 
         $("#nickname").bind("click", function() {
-            $(this).text(prompt("Change nickname", $(this).text()));
+            nickname(prompt("Change nickname", nickname()));
+
             $("input[name=message_body]").focus();
             $("p.nickname-hint").remove();
-            $.cookie("xdroom_nickname", $(this).text(), { path: '/', expires: 365 });
+            $.cookie("xdroom_nickname", nickname(), { path: '/', expires: 365 });
             return false;
         });
     });
