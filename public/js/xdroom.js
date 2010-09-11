@@ -7,8 +7,47 @@ if (typeof(JSON) == 'undefined') $.getScript("/js/json2.js");
         // NEVER-ish CHANGE THESE CAPITALZIE VALUES
         BOOT_TIME: new Date(),
         IDENTIFIER: CybozuLabs.SHA1.calc(Math.random().toString() + new Date().getTime()),
+
         settings: {
             disable_notification: true
+        },
+
+        check_notification: function(supported_cb, unsupported_cb) {
+            var allowed;
+
+            if (!window.webkitNotifications) {
+                if ($.isFunction(unsupported_cb)) unsupported_cb();
+                return false;
+            }
+
+            allowed = window.webkitNotifications.checkPermission() == 0 && !XDRoom.settings.disable_notification;
+
+            if ($.isFunction(supported_cb)) supported_cb(allowed);
+
+            return allowed;
+        },
+
+        enable_notification: function(cb) {
+            if (!window.webkitNotifications) return;
+
+            var permission = window.webkitNotifications.checkPermission();
+            if (permission != 0) {
+                window.webkitNotifications.requestPermission(function() {
+                    XDRoom.settings.disable_notification = false;
+                    if ($.isFunction(cb)) cb();
+                });
+            }
+            else {
+                XDRoom.settings.disable_notification = false;
+                if ($.isFunction(cb)) cb();
+            }
+
+            return false;
+        },
+
+        disable_notification: function(cb) {
+            XDRoom.settings.disable_notification = false;
+            if ($.isFunction(cb)) cb();
         },
 
         show_notification: function(icon, title, text) {
@@ -190,48 +229,35 @@ if (typeof(JSON) == 'undefined') $.getScript("/js/json2.js");
             return false;
         });
 
-        if (window.webkitNotifications) {
-            if (window.webkitNotifications.checkPermission() == 0 && !XDRoom.settings.disable_notification) {
-                $("button#enable-notification").hide();
-            }
-            else {
-                $("button#disable-notification").hide();
-            }
-
-            $("button#enable-notification").bind("click", function() {
-                var button = this;
-                var permission = window.webkitNotifications.checkPermission();
-                if (permission != 0) {
-                    window.webkitNotifications.requestPermission(function() {
-                        $(button).text("Done!").hide('slow!');
-                        setTimeout(function() {
-                            $(button).text("Disable Notification");
-                        }, 500);
-
-                        XDRoom.settings.disable_notification = false;
-                        $("#message_body").focus();
+        XDRoom.check_notification(
+            function(allowed) {
+                $("button#enable-notification").bind("click", function() {
+                    XDRoom.enable_notification(function() {
+                        $("button#disable-notification").show();
+                        $("button#enable-notification").hide();
                     });
-                }
-                else {
-                    $("button#disable-notification").show();
-                    $("button#enable-notification").hide();
-                    XDRoom.settings.disable_notification = false;
-                }
-                $("#message_body").focus();
-                return false;
-            });
 
-            $("button#disable-notification").bind("click", function() {
-                XDRoom.settings.disable_notification = true;
-                $("button#disable-notification").hide();
-                $("button#enable-notification").show();
-                return false;
-            });
-        }
-        else {
-            $("button#enable-notification").remove();
-            $("button#disable-notification").remove();
-        }
+                    return false;
+                });
+
+                $("button#disable-notification").bind("click", function() {
+                    XDRoom.disable_notification(function() {
+                        $("button#disable-notification").hide();
+                        $("button#enable-notification").show();
+                    });
+                    return false;
+                });
+
+                if (allowed)
+                    $("button#enable-notification").hide();
+                else
+                    $("button#disable-notification").hide();
+            },
+            function() {
+                $("button#enable-notification").remove();
+                $("button#disable-notification").remove();
+            }
+        );
 
         $(document.body)
             .bind("xdroom-joined", function() {
