@@ -9,6 +9,22 @@ if (typeof(JSON) == 'undefined') $.getScript("/js/json2.js");
         IDENTIFIER: CybozuLabs.SHA1.calc(Math.random().toString() + new Date().getTime()),
         settings: {
             disable_notification: true
+        },
+
+        show_notification: function(icon, title, text) {
+            if (!window.webkitNotifications) return;
+
+            try {
+                if (0 == window.webkitNotifications.checkPermission()) {
+                    x = window.webkitNotifications.createNotification(icon, title, text);
+                    x.ondisplay = function() {
+                        setTimeout(function() {
+                            x.cancel();
+                        }, 3000);
+                    };
+                    x.show();
+                }
+            } catch(e) {}
         }
     };
     window.XDRoom = XDRoom;
@@ -23,7 +39,6 @@ if (typeof(JSON) == 'undefined') $.getScript("/js/json2.js");
         var zeros = repeat(y, n);
         return String(zeros + x).slice(-1 * n);
     }
-
 
     function build_message(x) {
         var $m;
@@ -226,30 +241,15 @@ if (typeof(JSON) == 'undefined') $.getScript("/js/json2.js");
                 hpipe.send({'type':'action', 'nickname': old_nickname, 'verb':'renamed to', 'target': nickname()});
             })
             .bind("xdroom-message-says", function(e, message_data, $m) {
-                var x;
-
-                if (!window.webkitNotifications
-                    || new Date() - XDRoom.BOOT_TIME < 3000
+                if (new Date() - XDRoom.BOOT_TIME < 3000
                     || XDRoom.settings.disable_notification
                     || message_data.__client == XDRoom.IDENTIFIER) return;
 
-                try {
-                    if (0 == window.webkitNotifications.checkPermission()) {
-                        x = window.webkitNotifications.createNotification(
-                            "/images/opmsg48x48.jpg",
-                            message_data.nickname + " says",
-                            message_data.body
-                        );
-                        x.ondisplay = function() {
-                            setTimeout(function() {
-                                x.cancel();
-                            }, 3000);
-                        };
-                        x.show();
-                    }
-                } catch(e) {
-                    // just ignore
-                }
+                XDRoom.show_notification(
+                    "/images/opmsg48x48.jpg",
+                    message_data.nickname + " says",
+                    message_data.body
+                );
             });
 
         $(window).bind("unload", function() {
