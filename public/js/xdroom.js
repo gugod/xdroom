@@ -1,7 +1,13 @@
 if (typeof(JSON) == 'undefined') $.getScript("/js/json2.js");
 
 (function($){
-    var nc, IDENTIFIER = CybozuLabs.SHA1.calc(Math.random().toString() + new Date().getTime());
+    var XDRoom;
+    
+    XDRoom = {
+        // NEVER-ish CHANGE THESE CAPITALZIE VALUES
+        BOOT_TIME: new Date(),
+        IDENTIFIER: CybozuLabs.SHA1.calc(Math.random().toString() + new Date().getTime())
+    };
 
     function repeat(str, i) {
         if (isNaN(i) || i <= 0) return "";
@@ -42,10 +48,12 @@ if (typeof(JSON) == 'undefined') $.getScript("/js/json2.js");
     function append_message($m) {
         var sha1 = CybozuLabs.SHA1.calc($m.html());
         if ($(".message[sha1=" + sha1 + "]").size() > 0) {
-            return;
+            return false;
         }
+
         $m.attr("sha1", sha1);
         $m.prependTo('#content');
+        return true
     }
 
     function current_time(t) {
@@ -92,7 +100,9 @@ if (typeof(JSON) == 'undefined') $.getScript("/js/json2.js");
         var status = $('#connection-status');
         $(hpipe)
             .bind("ready", function () {
-                $(document.body).trigger("xdroom-connected");
+                if (new Date() - XDRoom.BOOT_TIME < 3000) {
+                    $(document.body).trigger("xdroom-joined");
+                }
             })
             .bind("connected", function () {
                 status.addClass("connected").text("Connected");
@@ -114,9 +124,8 @@ if (typeof(JSON) == 'undefined') $.getScript("/js/json2.js");
             })
             .bind("message.says", function (e, data) {
                 var m = build_message(data);
-                append_message(m);
-
-                $(document.body).trigger("xdroom-message-says", [data, m]);
+                if (append_message(m))
+                    $(document.body).trigger("xdroom-message-says", [data, m]);
             })
             .bind("message.action", function (e, data) {
                 var m = build_action_message(data);
@@ -136,7 +145,7 @@ if (typeof(JSON) == 'undefined') $.getScript("/js/json2.js");
                 $(document.body).trigger("xdroom-nickname-changed", [ old_nickname ]);
             }
             else {
-                hpipe.send({'__client': IDENTIFIER, 'type': 'says', 'body':  b, 'nickname': nickname() });
+                hpipe.send({'__client': XDRoom.IDENTIFIER, 'type': 'says', 'body':  b, 'nickname': nickname() });
             }
 
             $(this).find("input[name=message_body]").val("");
@@ -185,23 +194,19 @@ if (typeof(JSON) == 'undefined') $.getScript("/js/json2.js");
             $("button#enable-notification").remove();
         }
 
-        var document_load_time = new Date();
         $(document.body)
-            .bind("xdroom-connected", function() {
-                var now = new Date();
-                if (now - document_load_time < 10000) {
-                    hpipe.send({'type':'action', 'nickname': nickname(), 'verb':'joined'});
-                }
+            .bind("xdroom-joined", function() {
+                hpipe.send({'type':'action', 'nickname': nickname(), 'verb':'joined'});
             })
             .bind("xdroom-nickname-changed", function(e, old_nickname) {
                 hpipe.send({'type':'action', 'nickname': old_nickname, 'verb':'renamed to', 'target': nickname()});
             })
             .bind("xdroom-message-says", function(e, message_data, $m) {
-                var x, now = new Date();
+                var x;
 
-                if (message_data.__client == IDENTIFIER) return;
-                if (!window.webkitNotifications) return;
-                if (now - document_load_time < 3000) return;
+                if (!window.webkitNotifications
+                    || new Date() - XDRoom.BOOT_TIME < 3000
+                    || message_data.__client == XDRoom.IDENTIFIER) return;
 
                 try {
                     if (0 == window.webkitNotifications.checkPermission()) {
