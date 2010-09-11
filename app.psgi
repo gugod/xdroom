@@ -49,7 +49,6 @@ $bus->topics->{"arena"} = $topic;
 sub dispatch_verb {
     my ( $topic, $msg ) = @_;
 
-    # XXX: refactor this out... XD
     if( $msg->{verb} eq 'joined' ) {
         $meta->set_client( $msg->{address} , $msg );
     }
