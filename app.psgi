@@ -45,7 +45,6 @@ $topic->publish({
 
 $bus->topics->{"arena"} = $topic;
 
-
 sub dispatch_verb {
     my ( $topic, $msg ) = @_;
 
