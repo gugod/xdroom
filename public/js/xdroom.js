@@ -6,8 +6,12 @@ if (typeof(JSON) == 'undefined') $.getScript("/js/json2.js");
     XDRoom = {
         // NEVER-ish CHANGE THESE CAPITALZIE VALUES
         BOOT_TIME: new Date(),
-        IDENTIFIER: CybozuLabs.SHA1.calc(Math.random().toString() + new Date().getTime())
+        IDENTIFIER: CybozuLabs.SHA1.calc(Math.random().toString() + new Date().getTime()),
+        settings: {
+            disable_notification: true
+        }
     };
+    window.XDRoom = XDRoom;
 
     function repeat(str, i) {
         if (isNaN(i) || i <= 0) return "";
@@ -158,8 +162,6 @@ if (typeof(JSON) == 'undefined') $.getScript("/js/json2.js");
     $(function() {
         var n;
 
-        $("input[name=message_body]").focus();
-
         if (n = $.cookie("xdroom_nickname")) {
             nickname(n);
             $("#nickname").attr("old-value", n);
@@ -173,25 +175,47 @@ if (typeof(JSON) == 'undefined') $.getScript("/js/json2.js");
             return false;
         });
 
-
         if (window.webkitNotifications) {
+            if (window.webkitNotifications.checkPermission() == 0 && !XDRoom.settings.disable_notification) {
+                $("button#enable-notification").hide();
+            }
+            else {
+                $("button#disable-notification").hide();
+            }
+
             $("button#enable-notification").bind("click", function() {
                 var button = this;
                 var permission = window.webkitNotifications.checkPermission();
                 if (permission != 0) {
                     window.webkitNotifications.requestPermission(function() {
-                        $(button).text("Thank you!").fadeOut('slow');
+                        $(button).text("Done!").hide('slow!');
+                        setTimeout(function() {
+                            $(button).text("Disable Notification");
+                        }, 500);
+
+                        XDRoom.settings.disable_notification = false;
                         $("#message_body").focus();
                     });
                 }
                 else {
-                    $(button).text("Already Done!").fadeOut('slow');
-                    $("#message_body").focus();
+                    $("button#disable-notification").show();
+                    $("button#enable-notification").hide();
+                    XDRoom.settings.disable_notification = false;
                 }
+                $("#message_body").focus();
+                return false;
+            });
+
+            $("button#disable-notification").bind("click", function() {
+                XDRoom.settings.disable_notification = true;
+                $("button#disable-notification").hide();
+                $("button#enable-notification").show();
+                return false;
             });
         }
         else {
             $("button#enable-notification").remove();
+            $("button#disable-notification").remove();
         }
 
         $(document.body)
@@ -206,6 +230,7 @@ if (typeof(JSON) == 'undefined') $.getScript("/js/json2.js");
 
                 if (!window.webkitNotifications
                     || new Date() - XDRoom.BOOT_TIME < 3000
+                    || XDRoom.settings.disable_notification
                     || message_data.__client == XDRoom.IDENTIFIER) return;
 
                 try {
@@ -233,5 +258,6 @@ if (typeof(JSON) == 'undefined') $.getScript("/js/json2.js");
 
         hippie_woopie();
 
+        $("input[name=message_body]").focus();
     });
 }(jQuery));
