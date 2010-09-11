@@ -48,6 +48,21 @@ input {
     content: ": ";
 }
 
+
+.namelist {
+    background: #35D699;
+    border: 1px solid #00AC6B;
+    position: fixed;
+    bottom: 40px;
+    right:  10px;
+    font-size: 12px;
+    width: 200px;
+}
+.namelist div {
+    padding:2px 10px;
+}
+
+
 .action .nickname:after {
     content: " ";
 }

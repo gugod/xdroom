@@ -79,6 +79,16 @@ if (typeof(JSON) == 'undefined') $.getScript("/js/json2.js");
         return String(zeros + x).slice(-1 * n);
     }
 
+
+    function build_clientlist(x) {
+        var d = $('<div/>').addClass('namelist');
+        $(x.clientlist).each(function(i,e) {
+            var n = $('<div/>').html( e.nickname );
+            d.append( n );
+        });
+        return d;
+    }
+
     function build_message(x) {
         var $m;
         x = _normalize_message_data(x);
@@ -184,6 +194,12 @@ if (typeof(JSON) == 'undefined') $.getScript("/js/json2.js");
                 var m = build_message(data);
                 if (append_message(m))
                     $(document.body).trigger("xdroom-message-says", [data, m]);
+            })
+            .bind("message.data"  , function (e, data) {
+                if( data.clientlist ) {
+                    $('.client-list').remove();
+                    $(document.body).append( build_clientlist(data));
+                }
             })
             .bind("message.action", function (e, data) {
                 var m = build_action_message(data);
