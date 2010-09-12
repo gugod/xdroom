@@ -38,10 +38,7 @@ input {
 .message {
     padding: 10px;
     margin: 0;
-}
-
-.message:nth-child(even) {
-    background: #eee;
+    border-bottom: 1px dotted #eee;
 }
 
 .nickname:after {
@@ -49,7 +46,7 @@ input {
 }
 
 
-.namelist {
+#namelist {
     background: #35D699;
     border: 1px solid #00AC6B;
     position: fixed;
@@ -58,10 +55,10 @@ input {
     font-size: 12px;
     width: 200px;
 }
+
 .namelist div {
     padding:2px 10px;
 }
-
 
 .action .nickname:after {
     content: " ";
@@ -69,10 +66,6 @@ input {
 
 .action {
     background: #ffe;
-}
-
-.action:nth-child(even) {
-    background: #ffc;
 }
 
 time {
