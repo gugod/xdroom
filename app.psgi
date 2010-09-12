@@ -64,13 +64,14 @@ sub dispatch_verb {
     }
 }
 
-
 builder {
     mount "/_hippie/" => builder {
         enable "+Web::Hippie";
         enable "+Web::Hippie::Pipe", bus => $bus;
         sub {
             my $env = shift;
+            my $request = Plack::Request->new($env);
+
             my $room = $env->{'hippie.args'};
             my $topic = $env->{'hippie.bus'}->topic($room);
             if ($env->{PATH_INFO} eq '/new_listener') {
@@ -79,7 +80,7 @@ builder {
             elsif ($env->{PATH_INFO} eq '/message') {
                 my $msg = $env->{'hippie.message'};
                 $msg->{time} = time;
-                $msg->{address} = $env->{REMOTE_ADDR};
+                $msg->{address} = $request->cookies->{xdroom_nickname} . $request->address;
 
                 dispatch_verb($topic,$msg) if defined $msg->{verb};
 
