@@ -1,5 +1,4 @@
-# cat cpanfile | cpanm
-
+# cpanm < cpanfile
 Plack
 Web::Hippie
 Plack::Middleware::ReverseProxy
