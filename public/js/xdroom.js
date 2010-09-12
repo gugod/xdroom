@@ -12,6 +12,7 @@ if (typeof(JSON) == 'undefined') $.getScript("/js/json2.js");
             disable_notification: true
         },
 
+        // Utility.
         check_notification: function(supported_cb, unsupported_cb) {
             var allowed;
 
@@ -64,6 +65,16 @@ if (typeof(JSON) == 'undefined') $.getScript("/js/json2.js");
                     x.show();
                 }
             } catch(e) {}
+        },
+
+        // View.
+        View: {
+            refresh_namelist: function(clients) {
+                $("#namelist").empty();
+                $(clients).each(function(i, client) {
+                    $("#namelist").append( $("<li></li>").text(client.nickname) );
+                });
+            }
         }
     };
     window.XDRoom = XDRoom;
@@ -79,15 +90,6 @@ if (typeof(JSON) == 'undefined') $.getScript("/js/json2.js");
         return String(zeros + x).slice(-1 * n);
     }
 
-
-    function build_clientlist(x) {
-        var d = $('<div/>').addClass('namelist');
-        $(x.clientlist).each(function(i,e) {
-            var n = $('<div/>').html( e.nickname );
-            d.append( n );
-        });
-        return d;
-    }
 
     function build_message(x) {
         var $m;
@@ -198,8 +200,7 @@ if (typeof(JSON) == 'undefined') $.getScript("/js/json2.js");
             })
             .bind("message.data"  , function (e, data) {
                 if( data.clientlist ) {
-                    $('.client-list').remove();
-                    $(document.body).append( build_clientlist(data));
+                    XDRoom.View.refresh_namelist(data.clientlist);
                 }
             })
             .bind("message.action", function (e, data) {
