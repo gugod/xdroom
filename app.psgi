@@ -53,7 +53,7 @@ sub dispatch_verb {
     my ( $topic, $msg ) = @_;
 
     my $verb = $msg->{verb};
-    if( $verb eq 'joined' ) {
+    if( $verb eq 'joined' || $verb eq 'renamed to' ) {
         $meta->set_client( $msg->{address} , $msg );
     }
     elsif( $verb eq 'leaved' ) {
