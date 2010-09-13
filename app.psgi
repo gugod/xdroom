@@ -94,6 +94,10 @@ builder {
                 # XXX: should ban this user
                 $msg->{body} =~ s{<[\s/]*(script|iframe).*>}{XXX}g if $msg->{body};
 
+                # translate link
+                $msg->{body} =~ s{(https?://\S*)}{<a href="$1" target="_blank">$1</a>}g if $msg->{body};
+
+
                 use Data::Dumper::Simple; 
                 warn Dumper( $msg ) if debug;
 
