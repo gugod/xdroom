@@ -82,7 +82,7 @@ builder {
             elsif ($env->{PATH_INFO} eq '/message') {
                 my $msg = $env->{'hippie.message'};
                 $msg->{time} = time;
-                $msg->{address} = $request->cookies->{xdroom_nickname} . $request->address;
+                $msg->{address} = ($request->cookies->{xdroom_nickname}||'Someone') . $request->address;
 
                 dispatch_verb($topic,$msg) if defined $msg->{verb};
 
