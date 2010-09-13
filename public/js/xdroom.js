@@ -121,9 +121,9 @@ if (typeof(JSON) == 'undefined') $.getScript("/js/json2.js");
             return false;
         }
 
-        $m.hide();
-        $m.attr("sha1", sha1);
-        $m.prependTo('#content').slideDown('slow');
+        $m.attr('sha1', sha1);
+        $m.prependTo('#content');
+
         return true
     }
 

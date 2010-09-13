@@ -1,3 +1,8 @@
+@-webkit-keyframes fadeInEffect {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
 html, body {
     font-size: 18pt;
     line-height: 18pt;
@@ -14,14 +19,16 @@ html, body {
     color: #aaa;
 }
 
-#message_form, #content {
+form {
+    margin: 0 auto;
+    padding: 10px;
+}
+
+#content {
     margin: 0 auto;
     padding: 0
 }
 
-#message_form {
-    padding: 10px;
-}
 
 input {
     line-height: 18pt;
@@ -32,19 +39,21 @@ input {
 }
 
 #message_body {
-    width: 40em;
+    width: 35em;
 }
 
 .message {
     padding: 10px;
     margin: 0;
     border-bottom: 1px dotted #eee;
+    
+    -webkit-animation-name: fadeInEffect;
+    -webkit-animation-duration: 1s;
 }
 
 .nickname:after {
     content: ": ";
 }
-
 
 #namelist {
     background: #35D699;
