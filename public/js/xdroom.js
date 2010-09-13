@@ -1,5 +1,12 @@
 if (typeof(JSON) == 'undefined') $.getScript("/js/json2.js");
 
+function strip_html( html ) {
+    return html.replace( /<[\s\/]*(script|iframe).*\/?>/gi , '' );
+}
+
+
+
+
 (function($){
     var XDRoom;
     
@@ -91,15 +98,17 @@ if (typeof(JSON) == 'undefined') $.getScript("/js/json2.js");
     }
 
 
+
     function build_message(x) {
         var $m;
         x = _normalize_message_data(x);
 
         $m = $('<p class="message"></p>');
-        $m.text(x.body);
+
+        $m.html( strip_html(x.body) );
+
         $m.prepend('<span class="nickname">' + x.nickname + '</span>');
         $m.prepend('<time>' + x.time + '</time>');
-
         return $m;
     }
 

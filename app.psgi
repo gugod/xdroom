@@ -49,7 +49,6 @@ $bus->topics->{"arena"} = $topic;
 sub dispatch_verb {
     my ( $topic, $msg ) = @_;
 
-
     my $verb = $msg->{verb};
     if( $verb eq 'joined' ) {
         $meta->set_client( $msg->{address} , $msg );
@@ -91,6 +90,9 @@ builder {
                 $msg->{address} = ($request->cookies->{xdroom_nickname}||'Someone') . $request->address;
 
                 dispatch_verb($topic,$msg) if defined $msg->{verb};
+
+                # XXX: should ban this user
+                $msg->{body} =~ s{<[\s/]*(script|iframe).*>}{XXX}g if $msg->{body};
 
                 use Data::Dumper::Simple; 
                 warn Dumper( $msg ) if debug;
