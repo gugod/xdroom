@@ -77,15 +77,6 @@ sub is_illeagal_message {
     return $msg->{body} =~ m{<.*?(script|iframe)}ig;
 }
 
-sub filter_message_body {
-    my $msg = shift;
-
-    # XXX: should ban this user
-    $msg->{body} =~ s{<[\s/]*(script|iframe).*>}{XXX}g;
-
-    # translate link
-    $msg->{body} =~ s{(https?://\S*)}{<a href="$1" target="_blank">$1</a>}g;
-}
 
 builder {
     enable_if { $_[0]->{REMOTE_ADDR} eq '127.0.0.1' } "Plack::Middleware::ReverseProxy";
@@ -107,16 +98,14 @@ builder {
                 $msg->{time} = time;
                 $msg->{address} = ($request->cookies->{xdroom_nickname}||'Someone') . $request->address;
 
+                # XXX: sorry i mess it up. XD
+
                 dispatch_verb($topic,$msg) if defined $msg->{verb};
 
                 if( defined $msg->{body} && is_illeagal_message( $msg ) )  {
                     $msg->{body} = $x->random_sentence . '(' .  encode_entities( $msg->{body} ) . ')';
                 }
 
-                use Data::Dumper::Simple; 
-                warn Dumper( $msg ) if debug;
-
-                filter_message_body( $msg ) if defined $msg->{body};
                 $topic->publish($msg);
             }
             else {

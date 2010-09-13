@@ -1,3 +1,9 @@
+
+a,
+a:link,
+a:visited { text-decoration: none; }
+a:hover { text-decoration: underline; }
+
 @-webkit-keyframes fadeInEffect {
     from { opacity: 0; }
     to   { opacity: 1; }
@@ -81,3 +87,12 @@ time {
     color:#ccc;
     margin-right: 0.5em;
 }
+
+.oembed img {
+    border:1px solid #ccc;
+    padding: 6px;
+    margin: 6px;
+    margin-left: 4%;
+}
+
+

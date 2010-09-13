@@ -105,7 +105,18 @@ function strip_html( html ) {
 
         $m = $('<p class="message"></p>');
 
-        $m.html( strip_html(x.body) );
+        var html = strip_html( x.body );
+        var matches = html.match( /(https?:\/\/\S+)/ );
+
+        html = html.replace( /(https?:\/\/\S+)/ig , '<span class="oembed"><a href="$1">$1</a></span>' );
+        $m.html( html );
+
+        $m.find('a').oembed(null, {
+            embedMethod: "append",
+            maxWidth: 300,
+            maxHeight: 100,
+            vimeo: { autoplay: true, maxWidth: 200, maxHeight: 200}     
+        });
 
         $m.prepend('<span class="nickname">' + x.nickname + '</span>');
         $m.prepend('<time>' + x.time + '</time>');
