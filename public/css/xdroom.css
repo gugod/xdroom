@@ -41,7 +41,8 @@ input {
     font-size: 14pt;
     height: 18pt;
     padding: 5px;
-    margin: 0;
+    margin: 2px;
+    border: 1px solid #ccc;
 }
 
 #message_body {
