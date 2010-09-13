@@ -1,5 +1,12 @@
 if (typeof(JSON) == 'undefined') $.getScript("/js/json2.js");
 
+function strip_html( html ) {
+    return html.replace( /<[\s\/]*(script|iframe).*\/?>/gi , '' );
+}
+
+
+
+
 (function($){
     var XDRoom;
     
@@ -90,16 +97,27 @@ if (typeof(JSON) == 'undefined') $.getScript("/js/json2.js");
         return String(zeros + x).slice(-1 * n);
     }
 
-
     function build_message(x) {
         var $m;
         x = _normalize_message_data(x);
 
         $m = $('<p class="message"></p>');
-        $m.text(x.body);
+
+        var html = strip_html( x.body );
+        var matches = html.match( /(https?:\/\/\S+)/ );
+
+        html = html.replace( /(https?:\/\/\S+)/ig , '<span class="oembed"><a href="$1">$1</a></span>' );
+        $m.html( html );
+
+        $m.find('a').oembed(null, {
+            embedMethod: "append",
+            maxWidth: 300,
+            maxHeight: 100,
+            vimeo: { autoplay: true, maxWidth: 200, maxHeight: 200}     
+        });
+
         $m.prepend('<span class="nickname">' + x.nickname + '</span>');
         $m.prepend('<time>' + x.time + '</time>');
-
         return $m;
     }
 
