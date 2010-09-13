@@ -28,6 +28,7 @@ package main;
 use Moose;
 use Plack::Builder;
 use Plack::Request;
+use constant debug => 1;
 
 use AnyMQ;
 use AnyMQ::Topic;
@@ -48,14 +49,19 @@ $bus->topics->{"arena"} = $topic;
 sub dispatch_verb {
     my ( $topic, $msg ) = @_;
 
-    if( $msg->{verb} eq 'joined' ) {
+
+    my $verb = $msg->{verb};
+    if( $verb eq 'joined' ) {
         $meta->set_client( $msg->{address} , $msg );
     }
-    elsif( $msg->{verb} eq 'leaved' ) {
+    elsif( $verb eq 'leaved' ) {
         $meta->remove_client( $msg->{address} );
     }
 
-    if( $msg->{verb} eq 'joined' ) {
+    if( $verb eq 'joined' 
+        || $verb eq 'leaved'
+        || $verb eq 'renamed to'
+    ) {
         my $list = $meta->get_client_list();
         $topic->publish({
             type => 'data',
@@ -82,6 +88,9 @@ builder {
                 $msg->{address} = $env->{REMOTE_ADDR};
 
                 dispatch_verb($topic,$msg) if defined $msg->{verb};
+
+                use Data::Dumper::Simple; 
+                warn Dumper( $msg ) if debug;
 
                 $topic->publish($msg);
             }
