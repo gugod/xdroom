@@ -14,7 +14,6 @@ has clients => ( is => 'rw' ,
     }
 );
 
-
 sub get_client_list {
     my $self = shift;
 
@@ -32,10 +31,14 @@ use constant debug => 1;
 
 use AnyMQ;
 use AnyMQ::Topic;
+use Acme::Lingua::ZH::Remix;
 
+use HTML::Entities;
 my $meta = XDMeta->new;
 my $bus = AnyMQ->new;
 my $topic = AnyMQ::Topic->with_traits('WithBacklog')->new(backlog_length => 90, bus => $bus);
+
+my $x = Acme::Lingua::ZH::Remix->new;
 
 $topic->publish({
     nickname => 'xdroot',
@@ -69,6 +72,21 @@ sub dispatch_verb {
     }
 }
 
+sub is_illeagal_message {
+    my $msg = shift;
+    return $msg->{body} =~ m{<.*?(script|iframe)}ig;
+}
+
+sub filter_message_body {
+    my $msg = shift;
+
+    # XXX: should ban this user
+    $msg->{body} =~ s{<[\s/]*(script|iframe).*>}{XXX}g;
+
+    # translate link
+    $msg->{body} =~ s{(https?://\S*)}{<a href="$1" target="_blank">$1</a>}g;
+}
+
 builder {
     enable_if { $_[0]->{REMOTE_ADDR} eq '127.0.0.1' } "Plack::Middleware::ReverseProxy";
 
@@ -91,16 +109,14 @@ builder {
 
                 dispatch_verb($topic,$msg) if defined $msg->{verb};
 
-                # XXX: should ban this user
-                $msg->{body} =~ s{<[\s/]*(script|iframe).*>}{XXX}g if $msg->{body};
-
-                # translate link
-                $msg->{body} =~ s{(https?://\S*)}{<a href="$1" target="_blank">$1</a>}g if $msg->{body};
-
+                if( defined $msg->{body} && is_illeagal_message( $msg ) )  {
+                    $msg->{body} = $x->random_sentence . '(' .  encode_entities( $msg->{body} ) . ')';
+                }
 
                 use Data::Dumper::Simple; 
                 warn Dumper( $msg ) if debug;
 
+                filter_message_body( $msg ) if defined $msg->{body};
                 $topic->publish($msg);
             }
             else {
