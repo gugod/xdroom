@@ -72,7 +72,7 @@ sub dispatch_verb {
     }
 }
 
-sub is_illeagal_message {
+sub is_illegal_message {
     my $msg = shift;
     return $msg->{body} =~ m{<.*?(script|iframe)}ig;
 }
@@ -99,7 +99,7 @@ builder {
 
                 dispatch_verb($topic,$msg) if defined $msg->{verb};
 
-                if( defined $msg->{body} && is_illeagal_message( $msg ) )  {
+                if( defined $msg->{body} && is_illegal_message( $msg ) )  {
                     $msg->{body} = $x->random_sentence . '(' .  encode_entities( $msg->{body} ) . ')';
                 }
 
