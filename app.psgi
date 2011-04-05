@@ -122,11 +122,29 @@ builder {
 
     mount "/" => builder {
         enable "Static", path => qr{^/(test|pages|images|js|css)/}, root => 'public/';
+        enable "Session::Cookie";
+        enable "DoormanOpenID";
+
         sub {
             my $env = shift;
+            my $doorman = $env->{'doorman.users.openid'};
             my $req = Plack::Request->new($env);
             my $res = $req->new_response(200);
-            $res->redirect("/pages/index.html");
+
+            unless ($doorman->is_sign_in) {
+                $res->redirect("/pages/sign_in.html");
+                return $res->finalize;
+            }
+
+            if ($req->path eq "/users/openid_verified") {
+                $res->redirect("/");
+                return $res->finalize;
+            }
+
+            $res->cookies->{xdroom_openid}   = $doorman->verified_identity_url;
+            use Cwd;
+            my $fh = IO::File->new(cwd . "/public/pages/index.html", "r");
+            $res->body($fh);
             return $res->finalize;
         }
     };

@@ -252,11 +252,6 @@ function strip_html( html ) {
     $(function() {
         var n;
 
-        if (n = $.cookie("xdroom_nickname")) {
-            nickname(n);
-            $("#nickname").attr("old-value", n);
-        }
-
         $("#nickname").bind("change", function(e) {
             var old_nickname = $(this).attr("old-value");
             $("input[name=message_body]").focus();
@@ -264,6 +259,15 @@ function strip_html( html ) {
             $(document.body).trigger("xdroom-nickname-changed", [ old_nickname ]);
             return false;
         });
+
+        if (n = $.cookie("xdroom_nickname")) {
+            nickname(n);
+            $("#nickname").attr("old-value", n);
+        }
+        else if (n = $.cookie("xdroom_openid")) {
+            nickname(n);
+            $("#nickname").attr("old-value", n);
+        }
 
         XDRoom.check_notification(
             function(allowed) {
